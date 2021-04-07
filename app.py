@@ -161,17 +161,17 @@ def login():
         g.user = user
         flash('Login successful!', 'info')
 
-        next = request.form.get("next")
-        if next:
-            next_url = next
-        else:
-            next_url = '/'
+        # next = request.form.get("next")
+        # if next:
+        #     next_url = next
+        # else:
+        #     next_url = '/'
 
         response = {
             'message': f"Credentials for {email_address} were authenticated.",
             'status': 'success',
-            'access_token': create_access_token(identity=user),
-            'redirect_url': next_url
+            'access_token': create_access_token(identity=user)
+            # 'redirect_url': next_url
         }
         return jsonify(response)
 

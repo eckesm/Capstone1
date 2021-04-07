@@ -7,11 +7,17 @@ async function login(email_address, password) {
 
 	status = response['data']['status'];
 	message = response['data']['message'];
-	redirect_url = response['data']['redirect_url'];
+	// redirect_url = response['data']['redirect_url'];
 	if (status == 'success') {
 		access_token = response['data']['access_token'];
 		localStorage.setItem('access_token', access_token);
-		window.location.href = redirect_url;
+
+		redirect_url=$('#next').val()
+        if (redirect_url){
+		    window.location.href = redirect_url;
+        } else {
+		    window.location.href = '/';
+        }
 	}
 	else {
 		// Submit form in order to trigger form validation responses.

@@ -14,7 +14,7 @@
     <form id="login_form" method="POST" action="">
         <div class="row justify-content-around">
         
-            <input type="hidden" name="next" value="{{request.args.get('next','')}}">
+            <input id="next" type="hidden" name="next" value="{{request.args.get('next','')}}">
         
             {% if token %}
             <input type="hidden" name="token" value="{{token}}">
