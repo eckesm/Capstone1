@@ -92,17 +92,18 @@ def show_new_user_registration_form():
 
         # send_confirm_email_link(email_address)
         # flash('Welcome!', 'success')
-        flash(f" Welcome, {new_user.name}!  You have successfully registered for an account.  Please log in to confirm your password.'", 'success')
+        flash(
+            f" Welcome, {new_user.name}!  You have successfully registered for an account.  Please log in to confirm your password.'", 'success')
 
         # session[CURR_USER_ID] = new_user.id
         # g.user = new_user
-        
+
         # next_url = request.form.get("next")
         # if next_url:
         #     return redirect(next_url)
         # else:
-            # return redirect('/')
-        
+        # return redirect('/')
+
         return redirect('/login')
 
     else:
@@ -117,47 +118,11 @@ def user_identity_lookup(user):
 
 # -------------------------------------------------------------------
 
+
 @jwt.user_lookup_loader
 def user_lookup_callback(_jwt_header, jwt_data):
     identity = jwt_data["sub"]
     return User.get_by_id(identity)
-
-# -------------------------------------------------------------------
-
-
-@app.route('/get-cookie', methods=['POST'])
-def get_cookie():
-
-    form = LoginForm()
-    if form.validate():
-        email_address = request.json.get("email_address", None)
-        password = request.json.get("password", None)
-        user = User.authenticate(email_address, password)
-
-        if user == None:
-            response = {
-                "status": "fail",
-                "message": f"There is no user with the email address {email_address}.  Please make sure you are entering the correct email address with the correct spelling."
-            }
-            return jsonify(response)
-
-        if user == False:
-            response = {
-                "status": "fail",
-                "message": "Credentials entered were incorrect.  Please try again."
-            }
-            return jsonify(response)
-
-        access_token = create_access_token(identity=user)
-        response = {
-            "status": "success",
-            "access_token": access_token,
-            "message": f"Credentials for {email_address} were authenticated."
-        }
-        return jsonify(response)
-
-    else:
-        return jsonify('ERROR: form did not validate!')
 
 # -------------------------------------------------------------------
 
@@ -177,29 +142,41 @@ def login():
         password = form.password.data
         user = User.authenticate(email_address, password)
 
+        # If there is no user matching the entered email address...
         if user == None:
 
             flash(
                 f'There is no user with the email address {email_address}.  Please make sure you are entering the correct email address with the correct spelling.', 'warning')
             return redirect('/login')
 
+        # If the password is incorrect for the entered email address...
         if user == False:
 
             flash('Credentials entered were incorrect.  Please try again.',
                   'warning')
             return redirect('/login')
 
+        # If the user is authenticated...
         session[CURR_USER_ID] = user.id
         g.user = user
         flash('Login successful!', 'info')
 
-        next_url = request.form.get("next")
-        if next_url:
-            return redirect(next_url)
+        next = request.form.get("next")
+        if next:
+            next_url = next
         else:
-            return redirect('/')
+            next_url = '/'
 
-    return render_template('login.html', form=form)
+        response = {
+            'message': f"Credentials for {email_address} were authenticated.",
+            'status': 'success',
+            'access_token': create_access_token(identity=user),
+            'redirect_url': next_url
+        }
+        return jsonify(response)
+
+    else:
+        return render_template('login.html', form=form)
 
 
 # -------------------------------------------------------------------

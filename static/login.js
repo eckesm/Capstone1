@@ -3,17 +3,18 @@ async function login(email_address, password) {
 		email_address : email_address,
 		password      : password
 	};
-	const response = await axios.post('/get-cookie', data);
+	const response = await axios.post('/login', data);
 
 	status = response['data']['status'];
 	message = response['data']['message'];
+	redirect_url = response['data']['redirect_url'];
 	if (status == 'success') {
 		access_token = response['data']['access_token'];
 		localStorage.setItem('access_token', access_token);
-		window.location.href = '/study';
-		$('#login_form').submit();
+		window.location.href = redirect_url;
 	}
 	else {
+		// Submit form in order to trigger form validation responses.
 		$('#login_form').submit();
 	}
 }
